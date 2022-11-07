@@ -34,8 +34,9 @@ CREATE TABLE routines(
 );
 CREATE TABLE routine_activities(
   id SERIAL PRIMARY KEY,
-  "routineId" INTEGER REFERENCES routines(id) UNIQUE,
-  "activityId" INTEGER REFERENCES activities(id) UNIQUE,
+  "routineId" INTEGER REFERENCES routines(id),
+  "activityId" INTEGER REFERENCES activities(id),
+  UNIQUE("routineId", "activityId")
   duration INTEGER,
   count INTEGER,
 );
@@ -213,9 +214,9 @@ async function rebuildDB() {
     await dropTables();
     await createTables();
     await createInitialUsers();
-    await createInitialActivities();
-    await createInitialRoutines();
-    await createInitialRoutineActivities();
+    // await createInitialActivities();
+    // await createInitialRoutines();
+    // await createInitialRoutineActivities();
   } catch (error) {
     console.log("Error during rebuildDB");
     throw error;
