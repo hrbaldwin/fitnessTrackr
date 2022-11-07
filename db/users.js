@@ -9,7 +9,7 @@ async function createUser({ username, password }) {
   } = await client.query(
     `
         INSERT INTO users(username, password) 
-        VALUES ($1, $2, $3, $4)
+        VALUES ($1, $2)
         ON CONFLICT (username) DO NOTHING
         RETURNING *;
         `,
