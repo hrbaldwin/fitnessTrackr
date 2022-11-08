@@ -16,7 +16,7 @@ async function createUser({ username, password }) {
         `,
     [username, password]
   );
-
+  delete user.password;
   return user;
 }
 
@@ -26,14 +26,16 @@ async function getUser({ username, password }) {
       rows: [user],
     } = await client.query(
       `
-        SELECT username, password
+        SELECT *
         FROM users
-        WHERE password;
+        WHERE username=$1;
     `,
-      [username, password]
+      [username]
     );
-
-    return user;
+    if (user && user.password == password) {
+      delete user.password;
+      return user;
+    }
   } catch (error) {
     throw error;
   }
