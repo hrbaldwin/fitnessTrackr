@@ -1,34 +1,42 @@
-const client = require('./client');
+/* eslint-disable no-useless-catch */
+const client = require("./client");
 
-async function getRoutineById(id){
+async function getRoutineById(id) {}
+
+async function getRoutinesWithoutActivities() {}
+
+async function getAllRoutines() {}
+
+async function getAllRoutinesByUser({ username }) {}
+
+async function getPublicRoutinesByUser({ username }) {}
+
+async function getAllPublicRoutines() {}
+
+async function getPublicRoutinesByActivity({ id }) {}
+
+async function createRoutine({ creatorId, isPublic, name, goal }) {
+  try {
+    const {
+      rows: [routine],
+    } = await client.query(
+      `
+        INSERT INTO routines("creatorId", "isPublic", name, goal)
+        VALUES($1, $2, $3, $4)
+        ON CONFLICT(name) DO NOTHING
+        RETURNING *
+        `,
+      [creatorId, isPublic, name, goal]
+    );
+    return routine;
+  } catch (error) {
+    throw error;
+  }
 }
 
-async function getRoutinesWithoutActivities(){
-}
+async function updateRoutine({ id, ...fields }) {}
 
-async function getAllRoutines() {
-}
-
-async function getAllRoutinesByUser({username}) {
-}
-
-async function getPublicRoutinesByUser({username}) {
-}
-
-async function getAllPublicRoutines() {
-}
-
-async function getPublicRoutinesByActivity({id}) {
-}
-
-async function createRoutine({creatorId, isPublic, name, goal}) {
-}
-
-async function updateRoutine({id, ...fields}) {
-}
-
-async function destroyRoutine(id) {
-}
+async function destroyRoutine(id) {}
 
 module.exports = {
   getRoutineById,
@@ -41,4 +49,4 @@ module.exports = {
   createRoutine,
   updateRoutine,
   destroyRoutine,
-}
+};
