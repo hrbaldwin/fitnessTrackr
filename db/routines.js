@@ -1,7 +1,31 @@
 /* eslint-disable no-useless-catch */
 const client = require("./client");
 
-async function getRoutineById(id) {}
+async function getRoutineById(id) {
+  try {
+    const {
+      rows: [routine],
+    } = await client.query(
+      `
+        SELECT *
+        FROM routines
+        WHERE id = $1;
+    `,
+      [id]
+    );
+
+    if (!routine) {
+      throw {
+        name: "routineNotFoundError",
+        message: "Could not find a routine with that id",
+      };
+    }
+
+    return routine;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getRoutinesWithoutActivities() {}
 
@@ -23,8 +47,7 @@ async function createRoutine({ creatorId, isPublic, name, goal }) {
       `
         INSERT INTO routines("creatorId", "isPublic", name, goal)
         VALUES($1, $2, $3, $4)
-        ON CONFLICT(name) DO NOTHING
-        RETURNING *
+        RETURNING *;
         `,
       [creatorId, isPublic, name, goal]
     );
