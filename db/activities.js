@@ -2,11 +2,74 @@
 const client = require("./client");
 
 // database functions
-async function getAllActivities() {}
+async function getAllActivities() {
+  try {
+    const { rows: activityIds } = await client.query(`
+    SELECT *
+    FROM activities;
+  `);
 
-async function getActivityById(id) {}
+    const gettingActivities = await Promise.all(
+      activityIds.map((activityId) => getActivityById(activityId.id))
+    );
 
-async function getActivityByName(name) {}
+    return gettingActivities;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getActivityById(id) {
+  try {
+    const {
+      rows: [activity],
+    } = await client.query(
+      `
+        SELECT *
+        FROM activities
+        WHERE id = $1;
+    `,
+      [id]
+    );
+
+    if (!activity) {
+      throw {
+        name: "ActivityNotFoundError",
+        message: "Could not find a activity with that id",
+      };
+    }
+
+    return activity;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getActivityByName(name) {
+  try {
+    const {
+      rows: [activity],
+    } = await client.query(
+      `
+    SELECT *
+    FROM activities
+    WHERE name= $1;
+  `,
+      [name]
+    );
+
+    if (!activity) {
+      throw {
+        name: "ActivityNotFoundError",
+        message: "Could not find a activity with that name",
+      };
+    }
+
+    return activity;
+  } catch (error) {
+    throw error;
+  }
+}
 
 // select and return an array of all activities
 async function attachActivitiesToRoutines(routines) {
@@ -48,10 +111,12 @@ async function createActivity({ name, description }) {
   const {
     rows: [activity],
   } = await client.query(
-    `INSERT INTO activity(name, description)
+    `
+  INSERT INTO activities(name, description)
   VALUES($1, $2)
-  ON CONFLICT (activity) DO NOTHING
-  RETURNING *`,
+  ON CONFLICT (name) DO NOTHING
+  RETURNING *;
+  `,
     [name, description]
   );
   return activity;
@@ -59,7 +124,29 @@ async function createActivity({ name, description }) {
 // don't try to update the id
 // do update the name and description
 // return the updated activity
-async function updateActivity({ id, ...fields }) {}
+async function updateActivity({ id, ...fields }) {
+  const setString = Object.keys(fields)
+    .map((key, index) => `"${key}"=$${index + 1}`)
+    .join(", ");
+
+  try {
+    if (setString.length > 0) {
+      await client.query(
+        `
+    UPDATE activities
+    SET ${setString}
+    WHERE id=${id}
+    RETURNING *;
+    `,
+        Object.values(fields)
+      );
+    }
+
+    return await getActivityById(id);
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
   getAllActivities,
