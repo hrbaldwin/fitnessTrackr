@@ -55,7 +55,22 @@ async function getAllRoutines() {
   }
 }
 
-async function getAllRoutinesByUser({ username }) {}
+async function getAllRoutinesByUser({ id }) {
+  try {
+    const { rows } = await client.query(
+      `
+    SELECT *
+    FROM routines
+    WHERE "creatorId"=$1;
+    `,
+      [id]
+    );
+
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function getPublicRoutinesByUser({ username }) {}
 
