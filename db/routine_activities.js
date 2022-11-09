@@ -117,18 +117,24 @@ async function destroyRoutineActivity(id) {
 // START HERE
 async function canEditRoutineActivity(routineActivityId, userId) {
   try {
-    await client.query(
+    const {
+      rows: [routine],
+    } = await client.query(
       `
-    SELECT routine.activities."activityId", routines."creatorId"
+    SELECT *
     FROM routine_activities
-    JOIN routines ON routines."creatorId" = routine.activities."activityId"
-    WHERE  
+    JOIN routines ON routines.id = routine_activities."routineId"
+    AND routine_activities.id = $1
     ;
   `,
-      [routineActivityId, userId]
+      [routineActivityId]
     );
-
-    return true;
+    console.log(routine);
+    if (userId === routine.creatorId) {
+      return true;
+    } else {
+      return false;
+    }
   } catch (error) {
     throw error;
   }
