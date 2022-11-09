@@ -3,6 +3,15 @@ const client = require("./client");
 
 async function getRoutineById(id) {
   try {
+    await client.query(
+      `
+        SELECT "activityId"
+        FROM routine_activities
+        WHERE id = $1;
+    `,
+      [id]
+    );
+    // unsure above ^^ come back
     const {
       rows: [routine],
     } = await client.query(
@@ -100,7 +109,6 @@ async function destroyRoutine(id) {
   await client.query(
     `
         DELETE FROM routine_activities 
-  
         WHERE "routineId"=$1  ;
         `,
     [id]
@@ -110,7 +118,6 @@ async function destroyRoutine(id) {
   } = await client.query(
     `
         DELETE FROM routines 
-  
         WHERE id=$1 RETURNING * ;
         `,
     [id]

@@ -1,7 +1,31 @@
 /* eslint-disable no-useless-catch */
 const client = require("./client");
 
-async function getRoutineActivityById(id) {}
+async function getRoutineActivityById(id) {
+  try {
+    const {
+      rows: [routine_activity],
+    } = await client.query(
+      `
+      SELECT *
+      FROM routine_activities
+      WHERE id = $1;
+  `,
+      [id]
+    );
+
+    if (!routine_activity) {
+      throw {
+        name: "routineActivityNotFoundError",
+        message: "Could not find a routine activity with that id",
+      };
+    }
+
+    return routine_activity;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function addActivityToRoutine({
   routineId,
@@ -28,13 +52,77 @@ async function addActivityToRoutine({
   }
 }
 
-async function getRoutineActivitiesByRoutine({ id }) {}
+async function getRoutineActivitiesByRoutine({ id }) {
+  try {
+    // NEEDS CHANGING
+    const {
+      rows: [routine_activity],
+    } = await client.query(
+      `
+      SELECT *
+      FROM routine_activities
+      WHERE id = $1;
+  `,
+      [id]
+    );
 
-async function updateRoutineActivity({ id, ...fields }) {}
+    if (!routine_activity) {
+      throw {
+        name: "routineActivityNotFoundError",
+        message: "Could not find a routine activity with that routine",
+      };
+    }
 
-async function destroyRoutineActivity(id) {}
+    return routine_activity;
+  } catch (error) {
+    throw error;
+  }
+}
 
-async function canEditRoutineActivity(routineActivityId, userId) {}
+async function updateRoutineActivity({ id, ...fields }) {
+  const setString = Object.keys(fields)
+    .map((key, index) => `"${key}"=$${index + 1}`)
+    .join(", ");
+
+  try {
+    if (setString.length > 0) {
+      await client.query(
+        `
+  UPDATE routine_activities
+  SET ${setString}
+  WHERE id=${id}
+  RETURNING *;
+  `,
+        Object.values(fields)
+      );
+    }
+
+    return await getRoutineActivityById(id);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function destroyRoutineActivity(id) {
+  const {
+    rows: [routine_activity],
+  } = await client.query(
+    `
+        DELETE FROM routine_activities 
+        WHERE id=$1 RETURNING * ;
+        `,
+    [id]
+  );
+  return routine_activity;
+}
+
+async function canEditRoutineActivity(routineActivityId, userId) {
+  if (userId === "creatorId") {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 module.exports = {
   getRoutineActivityById,
