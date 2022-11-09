@@ -1,4 +1,5 @@
 /* eslint-disable no-useless-catch */
+const { attachActivitiesToRoutines } = require("./activities");
 const client = require("./client");
 
 async function getRoutineActivityById(id) {
@@ -54,26 +55,23 @@ async function addActivityToRoutine({
 
 async function getRoutineActivitiesByRoutine({ id }) {
   try {
-    // NEEDS CHANGING
-    const {
-      rows: [routine_activity],
-    } = await client.query(
+    const { rows } = await client.query(
       `
-      SELECT *
-      FROM routine_activities
-      WHERE id = $1;
+    SELECT routine_activities.*
+    FROM routine_activities
+    WHERE "routineId"=$1;
   `,
       [id]
     );
 
-    if (!routine_activity) {
+    if (!rows) {
       throw {
         name: "routineActivityNotFoundError",
         message: "Could not find a routine activity with that routine",
       };
     }
 
-    return routine_activity;
+    return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
   }
@@ -116,11 +114,23 @@ async function destroyRoutineActivity(id) {
   return routine_activity;
 }
 
+// START HERE
 async function canEditRoutineActivity(routineActivityId, userId) {
-  if (userId === "creatorId") {
+  try {
+    await client.query(
+      `
+    SELECT routine.activities."activityId", routines."creatorId"
+    FROM routine_activities
+    JOIN routines ON routines."creatorId" = routine.activities."activityId"
+    WHERE  
+    ;
+  `,
+      [routineActivityId, userId]
+    );
+
     return true;
-  } else {
-    return false;
+  } catch (error) {
+    throw error;
   }
 }
 
