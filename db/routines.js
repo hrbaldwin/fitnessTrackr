@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-catch */
 const client = require("./client");
+const { attachActivitiesToRoutines } = require("./activities");
 
 async function getRoutineById(id) {
   try {
@@ -40,16 +41,13 @@ async function getRoutinesWithoutActivities() {}
 
 async function getAllRoutines() {
   try {
-    const { rows: routinesIds } = await client.query(`
-    SELECT *
-    FROM routines;
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName"
+    FROM routines
+    JOIN users ON routines."creatorId" = users.id
   `);
 
-    const gettingRoutines = await Promise.all(
-      routinesIds.map((routinesId) => getRoutineById(routinesId.id))
-    );
-
-    return gettingRoutines;
+    return attachActivitiesToRoutines(rows);
   } catch (error) {
     throw error;
   }
@@ -72,11 +70,54 @@ async function getAllRoutinesByUser({ id }) {
   }
 }
 
-async function getPublicRoutinesByUser({ username }) {}
+async function getPublicRoutinesByUser({ id }) {
+  try {
+    const { rows } = await client.query(
+      `
+    SELECT *
+    FROM routines
+    WHERE "creatorId"=$1 AND "isPublic"=true; 
+    `,
+      [id]
+    );
 
-async function getAllPublicRoutines() {}
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+}
 
-async function getPublicRoutinesByActivity({ id }) {}
+async function getAllPublicRoutines() {
+  try {
+    const { rows } = await client.query(`
+    SELECT routines.*, users.username AS "creatorName"
+    FROM routines
+    WHERE "isPublic" = true
+    JOIN users ON routines."creatorId" = users.id;
+  `);
+
+    return attachActivitiesToRoutines(rows);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getPublicRoutinesByActivity({ id }) {
+  try {
+    const { rows } = await client.query(
+      `
+    SELECT *
+    FROM routines
+    WHERE "activityId"=$1 AND "isPublic"=true; 
+    `,
+      [id]
+    );
+
+    return rows;
+  } catch (error) {
+    throw error;
+  }
+}
 
 async function createRoutine({ creatorId, isPublic, name, goal }) {
   try {
