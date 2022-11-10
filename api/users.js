@@ -20,8 +20,7 @@ usersRouter.post("/login", async (req, res, next) => {
     const user = await getUserByUsername(username);
     if (user && user.password == password) {
       const token = jwt.sign({ id: user.id, username }, JWT_SECRET);
-      res.send({ message: "you're logged in!", token });
-      return token && user;
+      res.send({ message: "you're logged in!", token, user });
     } else {
       next({
         name: "IncorrectCredentialsError",
@@ -44,7 +43,15 @@ usersRouter.post("/register", async (req, res, next) => {
     if (user) {
       next({
         name: "UserExistsError",
-        message: "A user by that username already exists",
+        message: `User ${username} is already taken.`,
+      });
+    }
+
+    if (password.length < 8) {
+      next({
+        error: "password too short",
+        message: "Password Too Short!",
+        name: "wrong",
       });
     }
 
@@ -64,6 +71,7 @@ usersRouter.post("/register", async (req, res, next) => {
     res.send({
       message: "thank you for signing up",
       token,
+      user: creatingUser,
     });
   } catch ({ name, message }) {
     next({ name, message });
