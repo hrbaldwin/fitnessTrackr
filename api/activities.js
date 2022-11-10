@@ -1,6 +1,10 @@
 const express = require("express");
 const activitiesRouter = express.Router();
-const { getAllActivities, createActivity } = require("../db");
+const {
+  getAllActivities,
+  createActivity,
+  getActivityByName,
+} = require("../db");
 const { requireUser } = require("./utils");
 
 // GET /api/activities/:activityId/routines
@@ -14,19 +18,26 @@ activitiesRouter.get("/", async (req, res, next) => {
       return activity.name && activity.description;
     });
 
-    res.send({
-      activities,
-    });
+    res.send(activities);
   } catch ({ name, message }) {
     next({ name, message });
   }
 });
 
 // POST /api/activities
-activitiesRouter.post("/activities", requireUser, async (req, res, next) => {
+activitiesRouter.post("/", async (req, res, next) => {
   const { name, description = "" } = req.body;
-
+  console.log("hifdgfgd");
   const activityData = {};
+  const _activity = await getActivityByName(name);
+
+  if (_activity) {
+    next({
+      error: "activity already exists",
+      message: "An activity with name Push Ups already exists",
+      name: "activity already in use",
+    });
+  }
 
   try {
     activityData.name = name;
