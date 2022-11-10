@@ -1,12 +1,13 @@
 /* eslint-disable no-useless-catch */
 const jwt = require("jsonwebtoken");
 const express = require("express");
-const router = express.Router();
+const usersRouter = express.Router();
 const { JWT_SECRET } = process.env;
 const { createUser, getUserByUsername } = require("../db");
 
 // POST /api/users/login
-router.post("/login", async (req, res, next) => {
+// GETTING 500 ERROR WHEN LOGGING IN USER IN THUNDERCLIENT
+usersRouter.post("/login", async (req, res, next) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
@@ -34,7 +35,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 // POST /api/users/register
-router.post("/register", async (req, res, next) => {
+usersRouter.post("/register", async (req, res, next) => {
   const { username, password } = req.body;
 
   try {
@@ -51,7 +52,7 @@ router.post("/register", async (req, res, next) => {
 
     const token = jwt.sign(
       {
-        id: user.id,
+        id: creatingUser.id,
         username,
       },
       process.env.JWT_SECRET,
@@ -73,4 +74,4 @@ router.post("/register", async (req, res, next) => {
 
 // GET /api/users/:username/routines
 
-module.exports = router;
+module.exports = usersRouter;
