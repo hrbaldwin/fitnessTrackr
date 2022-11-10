@@ -6,7 +6,7 @@ const { requireUser } = require("./utils");
 // GET /api/activities/:activityId/routines
 
 // GET /api/activities
-activitiesRouter.get("/activities", async (req, res, next) => {
+activitiesRouter.get("/", async (req, res, next) => {
   try {
     const allActivities = await getAllActivities();
 
