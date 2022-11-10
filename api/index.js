@@ -23,6 +23,7 @@ router.use("/routines", routinesRouter);
 
 // ROUTER: /api/routine_activities
 const routineActivitiesRouter = require("./routineActivities");
+const { application } = require("express");
 router.use("/routine_activities", routineActivitiesRouter);
 
 module.exports = router;
