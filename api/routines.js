@@ -17,9 +17,7 @@ routinesRouter.get("/", async (req, res, next) => {
       );
     });
 
-    res.send({
-      routines,
-    });
+    res.send(routines);
   } catch ({ name, message }) {
     next({ name, message });
   }
