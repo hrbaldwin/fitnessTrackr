@@ -43,6 +43,8 @@ routinesRouter.post("/routines", requireUser, async (req, res, next) => {
 
 // PATCH /api/routines/:routineId
 
+routinesRouter.patch;
+
 // DELETE /api/routines/:routineId
 
 // POST /api/routines/:routineId/activities

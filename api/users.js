@@ -3,7 +3,15 @@ const jwt = require("jsonwebtoken");
 const express = require("express");
 const usersRouter = express.Router();
 const { JWT_SECRET } = process.env;
-const { createUser, getUserByUsername, getUser } = require("../db");
+const {
+  createUser,
+  getUserByUsername,
+  getUser,
+  getUserById,
+  getPublicRoutinesByUser,
+  getAllRoutines,
+  getAllRoutinesByUser,
+} = require("../db");
 const { requireUser } = require("./utils");
 usersRouter.use((req, res, next) => {
   console.log("hit users router");
@@ -94,13 +102,18 @@ usersRouter.get("/me", requireUser, async (req, res, next) => {
 });
 
 // GET /api/users/:username/routines
-usersRouter.get("/:username/routines", async (req, res, next) => {
+usersRouter.get("/:username/routines", requireUser, async (req, res, next) => {
   try {
-    const user = await getUser(user);
-    if (req.user) {
-      res.send();
+    console.log(req.params);
+
+    const user = await getUserByUsername(req.params.username);
+    console.log(user);
+    if (user && user.id === req.user.id) {
+      const loggedInRoutines = await getAllRoutinesByUser(user);
+      res.send(loggedInRoutines);
     } else if (user) {
-      res.send();
+      const notLoggedInRoutines = await getPublicRoutinesByUser(user);
+      res.send(notLoggedInRoutines);
     }
   } catch (error) {
     throw error;
