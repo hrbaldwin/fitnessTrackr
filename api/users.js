@@ -4,6 +4,7 @@ const express = require("express");
 const usersRouter = express.Router();
 const { JWT_SECRET } = process.env;
 const { createUser, getUserByUsername } = require("../db");
+const { requireUser } = require("./utils");
 
 // POST /api/users/login
 // GETTING 500 ERROR WHEN LOGGING IN USER IN THUNDERCLIENT
@@ -80,6 +81,14 @@ usersRouter.post("/register", async (req, res, next) => {
 
 // GET /api/users/me
 
+usersRouter.get("/me", requireUser, async (req, res, next) => {
+  try {
+    res.send(req.user);
+    console.log(req);
+  } catch (error) {
+    next(error);
+  }
+});
 // GET /api/users/:username/routines
 
 module.exports = usersRouter;
