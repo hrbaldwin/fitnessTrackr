@@ -3,8 +3,12 @@ const jwt = require("jsonwebtoken");
 const express = require("express");
 const usersRouter = express.Router();
 const { JWT_SECRET } = process.env;
-const { createUser, getUserByUsername } = require("../db");
+const { createUser, getUserByUsername, getUser } = require("../db");
 const { requireUser } = require("./utils");
+usersRouter.use((req, res, next) => {
+  console.log("hit users router");
+  next();
+});
 
 // POST /api/users/login
 // GETTING 500 ERROR WHEN LOGGING IN USER IN THUNDERCLIENT
@@ -84,11 +88,23 @@ usersRouter.post("/register", async (req, res, next) => {
 usersRouter.get("/me", requireUser, async (req, res, next) => {
   try {
     res.send(req.user);
-    console.log(req);
   } catch (error) {
     next(error);
   }
 });
+
 // GET /api/users/:username/routines
+usersRouter.get("/:username/routines", async (req, res, next) => {
+  try {
+    const user = await getUser(user);
+    if (req.user) {
+      res.send();
+    } else if (user) {
+      res.send();
+    }
+  } catch (error) {
+    throw error;
+  }
+});
 
 module.exports = usersRouter;

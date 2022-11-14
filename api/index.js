@@ -3,34 +3,14 @@ const router = express.Router();
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = process.env;
+const { getUserById } = require("../db");
 
 router.use(cors());
-
-// GET /api/health
-router.get("/health", async (req, res, next) => {
-  res.send("alliswell");
-});
-
-// ROUTER: /api/users
-const usersRouter = require("./users");
-router.use("/users", usersRouter);
-
-// ROUTER: /api/activities
-const activitiesRouter = require("./activities");
-router.use("/activities", activitiesRouter);
-
-// ROUTER: /api/routines
-const routinesRouter = require("./routines");
-router.use("/routines", routinesRouter);
-
-// ROUTER: /api/routine_activities
-const routineActivitiesRouter = require("./routineActivities");
-const { getUserById } = require("../db");
 
 router.use(async (req, res, next) => {
   const prefix = "Bearer ";
   const auth = req.header("Authorization");
-
+  console.log("should be hitting this");
   if (!auth) {
     next();
   } else if (auth.startsWith(prefix)) {
@@ -54,6 +34,26 @@ router.use(async (req, res, next) => {
   }
 });
 
+// GET /api/health
+router.get("/health", async (req, res, next) => {
+  res.send("alliswell");
+});
+
+// ROUTER: /api/users
+const usersRouter = require("./users");
+router.use("/users", usersRouter);
+
+// ROUTER: /api/activities
+const activitiesRouter = require("./activities");
+router.use("/activities", activitiesRouter);
+
+// ROUTER: /api/routines
+const routinesRouter = require("./routines");
+router.use("/routines", routinesRouter);
+
+// ROUTER: /api/routine_activities
+const routineActivitiesRouter = require("./routineActivities");
+
 router.use("/routine_activities", routineActivitiesRouter);
 router.use((error, req, res, next) => {
   res.send({
@@ -62,4 +62,5 @@ router.use((error, req, res, next) => {
     message: error.message,
   });
 });
+
 module.exports = router;
