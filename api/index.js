@@ -56,6 +56,9 @@ const routineActivitiesRouter = require("./routineActivities");
 
 router.use("/routine_activities", routineActivitiesRouter);
 router.use((error, req, res, next) => {
+  if (error.name == "UnauthorizedUserError") {
+    res.status(403);
+  }
   res.send({
     error: error.name,
     name: error.name,

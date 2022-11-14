@@ -7,6 +7,7 @@ const {
   getRoutineById,
   updateRoutine,
 } = require("../db");
+const usersRouter = require("./users");
 const { requireUser } = require("./utils");
 
 // GET /api/routines
@@ -67,12 +68,24 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
   }
   try {
     const originalRoutine = await getRoutineById(routineId);
-    console.log("test");
+    console.log("test", req.user.username);
     if (originalRoutine.creatorId === req.user.id) {
       console.log("test2");
-      const updatedRoutine = await updateRoutine(routineId, updateFields);
+      console.log(routineId);
+      console.log(updateFields);
+      const updatedRoutine = await updateRoutine({
+        id: routineId,
+        name,
+        goal,
+        isPublic,
+      });
       console.log(updatedRoutine);
       res.send(updatedRoutine);
+    } else {
+      next({
+        name: "UnauthorizedUserError",
+        message: `User ${req.user.username} is not allowed to update ${originalRoutine.name}`,
+      });
     }
   } catch (error) {
     throw error;
@@ -80,6 +93,18 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
 });
 
 // DELETE /api/routines/:routineId
+
+routinesRouter.delete("/:routineId", requireUser, async (req.res.next)=>{
+  try{
+const routine = await getRoutineById(req.params.routineId);
+
+if (routine && routine.creatorId === req.user.id){
+const updatedRoutine = await updateRoutine()
+}
+  }catch({}){
+    next({});
+  }
+})
 
 // POST /api/routines/:routineId/activities
 
