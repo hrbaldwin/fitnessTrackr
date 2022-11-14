@@ -10,7 +10,7 @@ router.use(cors());
 router.use(async (req, res, next) => {
   const prefix = "Bearer ";
   const auth = req.header("Authorization");
-  console.log("should be hitting this");
+
   if (!auth) {
     next();
   } else if (auth.startsWith(prefix)) {

@@ -104,10 +104,7 @@ usersRouter.get("/me", requireUser, async (req, res, next) => {
 // GET /api/users/:username/routines
 usersRouter.get("/:username/routines", requireUser, async (req, res, next) => {
   try {
-    console.log(req.params);
-
     const user = await getUserByUsername(req.params.username);
-    console.log(user);
     if (user && user.id === req.user.id) {
       const loggedInRoutines = await getAllRoutinesByUser(user);
       res.send(loggedInRoutines);
