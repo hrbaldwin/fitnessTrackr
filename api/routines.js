@@ -71,7 +71,6 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
     if (originalRoutine.creatorId === req.user.id) {
       console.log("test2");
       const updatedRoutine = await updateRoutine(routineId, updateFields);
-      console.log("test3");
       console.log(updatedRoutine);
       res.send(updatedRoutine);
     }
