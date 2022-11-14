@@ -6,8 +6,10 @@ const {
   createRoutine,
   getRoutineById,
   updateRoutine,
+  destroyRoutine,
+  addActivityToRoutine,
+  getRoutineActivitiesByRoutine,
 } = require("../db");
-const usersRouter = require("./users");
 const { requireUser } = require("./utils");
 
 // GET /api/routines
@@ -68,18 +70,14 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
   }
   try {
     const originalRoutine = await getRoutineById(routineId);
-    console.log("test", req.user.username);
     if (originalRoutine.creatorId === req.user.id) {
-      console.log("test2");
-      console.log(routineId);
-      console.log(updateFields);
       const updatedRoutine = await updateRoutine({
         id: routineId,
         name,
         goal,
         isPublic,
       });
-      console.log(updatedRoutine);
+
       res.send(updatedRoutine);
     } else {
       next({
@@ -94,18 +92,50 @@ routinesRouter.patch("/:routineId", requireUser, async (req, res, next) => {
 
 // DELETE /api/routines/:routineId
 
-routinesRouter.delete("/:routineId", requireUser, async (req.res.next)=>{
-  try{
-const routine = await getRoutineById(req.params.routineId);
+routinesRouter.delete("/:routineId", requireUser, async (req, res, next) => {
+  try {
+    const routine = await getRoutineById(req.params.routineId);
 
-if (routine && routine.creatorId === req.user.id){
-const updatedRoutine = await updateRoutine()
-}
-  }catch({}){
-    next({});
+    if (routine && routine.creatorId === req.user.id) {
+      const deletedRoutine = await destroyRoutine(routine);
+      res.send(deletedRoutine);
+    } else {
+      next({
+        name: "UnauthorizedUserError",
+        message: `User ${req.user.username} is not allowed to delete ${routine.name}`,
+      });
+    }
+  } catch ({ name, message }) {
+    next({ name, message });
   }
-})
+});
 
 // POST /api/routines/:routineId/activities
+routinesRouter.post("/:routineId/activities", async (req, res, next) => {
+  const { count, duration, activityId } = req.body;
+  const { routineId } = req.params;
+
+  try {
+    const gettingRoutineActivities = await getRoutineActivitiesByRoutine({
+      id: routineId,
+    });
+    console.log(gettingRoutineActivities, "AA");
+    // gettingRoutineAct is an array, need filter around
+    if (activityId === gettingRoutineActivities.activityId) {
+      // throw error
+    } else {
+      const addingActivity = await addActivityToRoutine({
+        routineId,
+        activityId,
+        count,
+        duration,
+      });
+
+      res.send(addingActivity);
+    }
+  } catch (error) {
+    throw error;
+  }
+});
 
 module.exports = routinesRouter;

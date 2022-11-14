@@ -6,10 +6,7 @@ const { JWT_SECRET } = process.env;
 const {
   createUser,
   getUserByUsername,
-  getUser,
-  getUserById,
   getPublicRoutinesByUser,
-  getAllRoutines,
   getAllRoutinesByUser,
 } = require("../db");
 const { requireUser } = require("./utils");
