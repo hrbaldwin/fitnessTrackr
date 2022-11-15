@@ -252,7 +252,7 @@ describe("/api/routines", () => {
       expect(response.body).toMatchObject(activityRoutineData);
     });
 
-    it.only("Prevents duplication on (routineId, activityId) pair.", async () => {
+    it("Prevents duplication on (routineId, activityId) pair.", async () => {
       const { fakeUser, token } = await createFakeUserWithToken("Jill");
       const fakeRoutine = await createFakePublicRoutine(
         fakeUser.id,

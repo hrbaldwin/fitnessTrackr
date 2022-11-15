@@ -116,12 +116,18 @@ routinesRouter.post("/:routineId/activities", async (req, res, next) => {
   const { routineId } = req.params;
 
   try {
-    const gettingRoutineActivities = await getRoutineActivitiesByRoutine({
+    const routineActivities = await getRoutineActivitiesByRoutine({
       id: routineId,
     });
-    console.log(gettingRoutineActivities, "AA");
-    // gettingRoutineAct is an array, need filter around
-    if (activityId === gettingRoutineActivities.activityId) {
+    console.log(routineActivities, "AA");
+    const routineActivitiesReturn = routineActivities.filter(
+      (routineActivity) => {
+        return routineActivity === activityId;
+      }
+    );
+    console.log(routineActivitiesReturn, "AAA");
+    // routineAct is an array, need filter around
+    if (activityId === routineActivities.activityId) {
       // throw error
     } else {
       const addingActivity = await addActivityToRoutine({
